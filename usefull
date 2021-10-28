@@ -1,0 +1,23 @@
+1. docker start postgres12
+2. migrate create -ext sql -dir db/migration -seq init_schema
+3. mkdir -p db/migration  
+4. docker exec -it postgres12 /bin/sh
+5. createdb --username=root --owner=root aha-terminal
+6. psql aha-terminal    = access database
+7. exit = exit from database, psql
+8. we can create a makefile and use it to create instruction library for sharing the project
+9. migrate -path db/migration -database "postgresql://root:admin@localhost:5433/aha-terminal" -verbose up
+10 docker exec -it postgres12 psql -U root
+
+curl -d '{"username":"user1","password":"password1"}' -H "Content-Type: application/json" -X POST http://localhost:8082/login
+
+
+
+
+
+
+
+install golang-migrate:
+1. go get -u -d github.com/golang-migrate/migrate
+2. cd ~/go/pkg/mod/github.com/golang-migrate/migrate/v4@v4.14.1/cmd/migrate
+3. go install .   
