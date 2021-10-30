@@ -5,11 +5,16 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/mkholjuraev/aha_engine/db/admin"
 	"github.com/mkholjuraev/aha_engine/manager"
 	"github.com/mkholjuraev/aha_engine/manager/auth"
 )
 
 func main() {
+	conn := admin.NewDatabaseConncetion()
+
+	fmt.Println(conn)
+
 	http.HandleFunc("/login", auth.Login)
 	http.HandleFunc("/profile", manager.Profile)
 
