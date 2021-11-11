@@ -1,22 +1,22 @@
 package auth
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )
 
 var jwtKey = []byte("sectet")
 
 var users = map[string]string{
-	"user1": "password1",
+	"men":   "men",
 	"user2": "password2",
 }
 
 type Credentials struct {
+	Id       int    `json:"id"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
@@ -26,48 +26,44 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func errorResponse(err error) gin.H {
+	return gin.H{"error": err.Error()}
+}
+
+func Login(ctx *gin.Context) {
+
 	var credentials Credentials
 
-	err := json.NewDecoder(r.Body).Decode((&credentials))
-
-	fmt.Printf("Login attempt: %v\n", credentials.Username)
-	if err != nil {
-		fmt.Printf("Bad request: %v\n", err)
-		w.WriteHeader(http.StatusBadRequest)
+	if err := ctx.ShouldBindJSON(&credentials); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
 	expectdPassword, ok := users[credentials.Username]
 
 	if !ok || expectdPassword != credentials.Password {
-		w.WriteHeader(http.StatusUnauthorized)
+		ctx.JSON(http.StatusUnauthorized, "")
 		return
 	}
 
-	expirationTime := time.Now().Add(time.Minute * 5)
-
-	claims := Claims{
-		Username: credentials.Username,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
+	maker, err := NewJWTMaker("xZ4PG7VtzqzHUBzDvA9EzzXiZ4nCataJ")
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	tokenString, err := maker.CreateToken(credentials.Username, 1)
+	fmt.Printf("Login attempt: %s\n", tokenString)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
 	fmt.Printf("Logged in: %v\n", credentials.Username)
-	http.SetCookie(w,
-		&http.Cookie{
-			Name:    "token",
-			Value:   tokenString,
-			Expires: expirationTime,
-		})
+
+	ctx.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
+	ctx.JSON(http.StatusOK, tokenString)
 
 }
