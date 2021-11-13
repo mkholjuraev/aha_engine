@@ -4,7 +4,7 @@ CREATE TABLE "users" (
   "created_at" timestamp DEFAULT (now()),
   "country_code" int,
   "password" varchar,
-  "login" varchar,
+  "username" varchar,
   "telephone" varchar,
   "socialLinks" varchar,
   "notifications" bigserial

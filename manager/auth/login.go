@@ -6,14 +6,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"github.com/mkholjuraev/aha_engine/base/models"
+	"github.com/mkholjuraev/aha_engine/db/admin"
 )
 
 var jwtKey = []byte("sectet")
 
-var users = map[string]string{
-	"men":   "men",
-	"user2": "password2",
-}
+var users models.User
 
 type Credentials struct {
 	Id       int    `json:"id"`
@@ -39,10 +38,10 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	expectdPassword, ok := users[credentials.Username]
+	db := admin.DB
 
-	if !ok || expectdPassword != credentials.Password {
-		ctx.JSON(http.StatusUnauthorized, "")
+	if err := db.Where("username = ? and password = ?", credentials.Username, credentials.Password).First(&users).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, "User not found")
 		return
 	}
 

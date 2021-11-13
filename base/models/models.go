@@ -4,18 +4,17 @@ import "time"
 
 type BaseModel struct {
 	ID        uint      `json:"id" gorm:"primary_key"`
-	CreatedAt time.Time `json:"created_at" gorm:"default.now()"`
+	CreatedAt time.Time `json:"created_at" gorm:"default:now();autoUpdateTime:milli" sql:"DEFAULT:'current_timestamp'"`
 }
 
 type User struct {
 	BaseModel
 	Name        string `json:"name"`
 	Surname     string `json:"surname"`
-	Login       string `json:"id" gorm:"unique"`
+	Username    string `json:"username" gorm:"unique"`
 	Password    string `json:"password" gorm:"not null"`
 	Telephone   string `json:"telephone" gorm:"not null"`
 	SocialLinks string `json:"social_links"`
-	// Notifications []uint `json:"notifications" gorm:""`
 }
 
 type Writer struct {
@@ -54,6 +53,8 @@ type Notifications struct {
 	Message string `json:"message" gorm:"not null"`
 	PostID  uint   `json:"post_id"`
 	Post    Post   `gorm:"foreignKey:PostID"`
+	UserID  uint   `json:"user_id"`
+	User    User
 }
 
 type Chat struct {

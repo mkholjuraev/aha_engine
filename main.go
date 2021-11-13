@@ -11,12 +11,13 @@ import (
 )
 
 func main() {
-	conn := admin.NewDatabaseConncetion()
 
-	fmt.Println(conn)
+	admin.NewDatabaseConncetion()
+
 	router := gin.Default()
 	router.Use(middleware.CORSMiddlewarePermitLogin())
 	router.POST("/api/login", auth.Login)
+	router.POST("/api/register", manager.Register)
 
 	maker, err := auth.NewJWTMaker("xZ4PG7VtzqzHUBzDvA9EzzXiZ4nCataJ")
 	authRoutes := router.Group("/").Use(middleware.CORSMiddlewarePermitAfterAuth())
@@ -25,5 +26,6 @@ func main() {
 	}
 	authRoutes.Use(middleware.AuthMiddleware(maker))
 	authRoutes.GET("/api/profile", manager.Profile)
+
 	router.Run(":8085")
 }
