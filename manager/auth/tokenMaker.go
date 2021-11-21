@@ -26,7 +26,6 @@ func NewJWTMaker(secretKey string) (Maker, error) {
 	}
 
 	maker := &JWTMaker{secretKey}
-	fmt.Printf("jwt token is hereeeeeee: %s\n", maker.secretKey)
 	return maker, nil
 }
 
@@ -39,7 +38,6 @@ func (maker *JWTMaker) CreateToken(username string, duration time.Duration) (str
 
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 
-	fmt.Printf("jwt token is hereeeeeee: %s\n", maker.secretKey)
 	return jwtToken.SignedString([]byte(maker.secretKey))
 }
 

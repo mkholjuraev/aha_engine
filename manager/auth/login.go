@@ -5,14 +5,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 	"github.com/mkholjuraev/aha_engine/base/models"
 	"github.com/mkholjuraev/aha_engine/db/admin"
 )
 
 var jwtKey = []byte("sectet")
 
-var users models.User
+var user models.User
 
 type Credentials struct {
 	Id       int    `json:"id"`
@@ -20,9 +19,10 @@ type Credentials struct {
 	Password string `json:"password"`
 }
 
-type Claims struct {
-	Username string `json:"username"`
-	jwt.StandardClaims
+type Response struct {
+	Name     string `json:"name"`
+	Surname  string `json:"surname"`
+	JwtToken string `json:"jwtToken"`
 }
 
 func errorResponse(err error) gin.H {
@@ -40,7 +40,7 @@ func Login(ctx *gin.Context) {
 
 	db := admin.DB
 
-	if err := db.Where("username = ? and password = ?", credentials.Username, credentials.Password).First(&users).Error; err != nil {
+	if err := db.Where("username = ? and password = ?", credentials.Username, credentials.Password).First(&user).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, "User not found")
 		return
 	}
@@ -53,16 +53,19 @@ func Login(ctx *gin.Context) {
 	}
 
 	tokenString, err := maker.CreateToken(credentials.Username, 1)
-	fmt.Printf("Login attempt: %s\n", tokenString)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	fmt.Printf("Logged in: %v\n", credentials.Username)
+	fmt.Printf("Logged in: %v\n", user.Name)
 
-	ctx.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
-	ctx.JSON(http.StatusOK, tokenString)
+	ctx.SetCookie(fmt.Sprintf("token", user.Name), tokenString, 3600, "/", "localhost", false, true)
+	ctx.JSON(http.StatusOK, Response{
+		Name:     user.Name,
+		Surname:  user.Surname,
+		JwtToken: tokenString,
+	})
 
 }
