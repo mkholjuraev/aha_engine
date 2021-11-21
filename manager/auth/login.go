@@ -22,6 +22,7 @@ type Credentials struct {
 type Response struct {
 	Name     string `json:"name"`
 	Surname  string `json:"surname"`
+	Username string `json:"username"`
 	JwtToken string `json:"jwtToken"`
 }
 
@@ -65,6 +66,7 @@ func Login(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, Response{
 		Name:     user.Name,
 		Surname:  user.Surname,
+		Username: user.Username,
 		JwtToken: tokenString,
 	})
 
