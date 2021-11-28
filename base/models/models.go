@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type BaseModel struct {
 	ID        uint      `json:"id" gorm:"primary_key"`
@@ -65,4 +67,12 @@ type Chat struct {
 	ReceiverID   uint   `json:"receiver_id"`
 	SenderUser   User   `gorm:"foreignKey:SenderID"`
 	ReceiverUser User   `gorm:"foreignKey:ReceiverID"`
+}
+
+type Images struct {
+	Id        uint   `json:"id" gorm:"primary_key"`
+	Name      string `json:"name" gorm:"not null"`
+	Path      string `json:"path" gorm:"not null"`
+	Type      int    `json:"type"`
+	Extension string `json:"extension"`
 }

@@ -26,6 +26,7 @@ func main() {
 	}
 	authRoutes.Use(middleware.AuthMiddleware(maker))
 	authRoutes.GET("/api/profile", manager.Profile)
-
+	authRoutes.POST("/api/image", manager.UploadImage)
+	authRoutes.GET("/api/image/:image_id", manager.ServeImage)
 	router.Run(":8085")
 }

@@ -11,10 +11,10 @@ import (
 func synchronize(db *gorm.DB) error {
 	m := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		{
-			ID: "Create writer",
+			ID: "change image structure",
 			Migrate: func(tx *gorm.DB) error {
 				if err := tx.AutoMigrate(
-					models.Writer{},
+					models.Images{},
 				); err != nil {
 					return err
 				}
@@ -22,7 +22,7 @@ func synchronize(db *gorm.DB) error {
 			},
 			Rollback: func(tx *gorm.DB) error {
 				return tx.Migrator().DropTable(
-					models.User{},
+					models.Images{},
 				)
 			},
 		},
