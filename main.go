@@ -18,6 +18,7 @@ func main() {
 	router.Use(middleware.CORSMiddlewarePermitLogin())
 	router.POST("/api/login", auth.Login)
 	router.POST("/api/register", manager.Register)
+	router.GET("/api/image/:image_id", manager.ServeImage)
 
 	maker, err := auth.NewJWTMaker("xZ4PG7VtzqzHUBzDvA9EzzXiZ4nCataJ")
 	authRoutes := router.Group("/").Use(middleware.CORSMiddlewarePermitAfterAuth())
@@ -27,6 +28,7 @@ func main() {
 	authRoutes.Use(middleware.AuthMiddleware(maker))
 	authRoutes.GET("/api/profile", manager.Profile)
 	authRoutes.POST("/api/image", manager.UploadImage)
-	authRoutes.GET("/api/image/:image_id", manager.ServeImage)
+	authRoutes.POST("/api/post/upload", manager.UploadPost)
+
 	router.Run(":8085")
 }

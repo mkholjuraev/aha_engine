@@ -20,6 +20,7 @@ type Credentials struct {
 }
 
 type Response struct {
+	ID       uint   `json:"id"`
 	Name     string `json:"name"`
 	Surname  string `json:"surname"`
 	Username string `json:"username"`
@@ -64,6 +65,7 @@ func Login(ctx *gin.Context) {
 
 	ctx.SetCookie(fmt.Sprintf("token", user.Name), tokenString, 3600, "/", "localhost", false, true)
 	ctx.JSON(http.StatusOK, Response{
+		ID:       user.ID,
 		Name:     user.Name,
 		Surname:  user.Surname,
 		Username: user.Username,
