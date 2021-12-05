@@ -18,17 +18,20 @@ func main() {
 	router.Use(middleware.CORSMiddlewarePermitLogin())
 	router.POST("/api/login", auth.Login)
 	router.POST("/api/register", manager.Register)
-	router.GET("/api/image/:image_id", manager.ServeImage)
+	router.GET("/api/image/:image_id", manager.ImageServer)
+	router.GET("/api/posts", manager.PostsServer)
 
 	maker, err := auth.NewJWTMaker("xZ4PG7VtzqzHUBzDvA9EzzXiZ4nCataJ")
 	authRoutes := router.Group("/").Use(middleware.CORSMiddlewarePermitAfterAuth())
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	authRoutes.Use(middleware.AuthMiddleware(maker))
 	authRoutes.GET("/api/profile", manager.Profile)
 	authRoutes.POST("/api/image", manager.UploadImage)
 	authRoutes.POST("/api/post/upload", manager.UploadPost)
+	authRoutes.GET("/api/post/:post_id", manager.PostServer)
 
 	router.Run(":8085")
 }
