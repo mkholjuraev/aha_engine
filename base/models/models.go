@@ -1,12 +1,10 @@
 package models
 
-import (
-	"time"
-)
+import "time"
 
 type BaseModel struct {
-	ID        uint      `json:"id" gorm:"primary_key"`
-	CreatedAt time.Time `json:"created_at" gorm:"default:now();autoUpdateTime:milli" sql:"DEFAULT:'current_timestamp'"`
+	ID        uint       `json:"id" gorm:"primary_key"`
+	CreatedAt *time.Time `json:"created_at" gorm:"default:now()::timestamp" sql:"DEFAULT:now::timestamp"`
 }
 
 type User struct {
@@ -47,6 +45,8 @@ type Post struct {
 	Views       int    `json:"views" gorm:"default:null"`
 	Likes       int    `json:"likes" gorm:"default:null"`
 	Shares      int    `json:"shares" gorm:"default:null"`
+	CoverImage  string `json:"cover_image"`
+	ReadTime    int    `json:"read_time"`
 }
 
 type Notifications struct {
