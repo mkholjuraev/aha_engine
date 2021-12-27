@@ -3,7 +3,7 @@ package models
 import "time"
 
 type BaseModel struct {
-	ID        uint       `json:"id" gorm:"primary_key"`
+	ID        uint       `json:"id" gorm:"primary_key" query:"u.id"`
 	CreatedAt *time.Time `json:"created_at" gorm:"default:now()::timestamp" sql:"DEFAULT:now::timestamp"`
 }
 
@@ -15,12 +15,15 @@ type User struct {
 	Password    string `json:"password" gorm:"not null"`
 	Telephone   string `json:"telephone" gorm:"not null"`
 	SocialLinks string `json:"social_links"`
+	//TODO: add interests info
+	PhotoID uint   `json:"photo_id"`
+	Photo   Images `json:"photo"`
 }
 
 type Writer struct {
 	BaseModel
 	Biograph      string `json:"biograph"`
-	Description   string `json:"description"`
+	Profession    string `json:"profession"`
 	DistinctLikes int    `json:"distinct_likes" gorm:"default:null"`
 	DistinctViews int    `json:"distinct_views" gorm:"default:null"`
 	UserID        uint   `json:"user_id"`
@@ -30,8 +33,8 @@ type Writer struct {
 type Follower struct {
 	BaseModel
 	WriterID     uint `json:"writer_id"`
-	FollowerID   uint `json:"follower_id"`
 	WriterUser   User `gorm:"foreignKey:WriterID"`
+	FollowerID   uint `json:"follower_id"`
 	FollowerUser User `gorm:"foreignKey:FollowerID"`
 }
 
@@ -40,7 +43,7 @@ type Post struct {
 	Title       string `json:"title" gorm:"not null"`
 	Description string `json:"description" gorm:"not null"`
 	WriterID    uint   `json:"writer_id"`
-	User        User   `gorm:"foreignKey:WriterID"`
+	Writer      Writer `gorm:"foreignKey:WriterID"`
 	Content     string `json:"content"`
 	Views       int    `json:"views" gorm:"default:null"`
 	Likes       int    `json:"likes" gorm:"default:null"`
@@ -75,4 +78,11 @@ type Images struct {
 	Path      string `json:"path" gorm:"not null"`
 	Type      int    `json:"type"`
 	Extension string `json:"extension"`
+}
+
+type Specialization struct {
+	BaseModel
+	Name      string `json:"specialization_name" gorm:"not null"`
+	WriterIDs []uint `json:"writer_ids"`
+	Writer    Writer `gorm:"foreignKey:WriterIDs"`
 }

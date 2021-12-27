@@ -33,5 +33,6 @@ func main() {
 	authRoutes.POST("/api/image", manager.UploadImage)
 	authRoutes.POST("/api/post/upload", manager.UploadPost)
 	authRoutes.DELETE("/api/post/:post_id", manager.DeletePostHandler)
+	authRoutes.POST("/api/writers", manager.UploadWriterInfo)
 	router.Run(":8085")
 }

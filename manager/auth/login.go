@@ -11,7 +11,10 @@ import (
 
 var jwtKey = []byte("sectet")
 
-var user models.User
+type UserInfo struct {
+	WriterId    uint `json:"writer_id" query:"w.id"`
+	models.User `gorm:"embedded;embeddedPrefix:m1_"`
+}
 
 type Credentials struct {
 	Id       int    `json:"id"`
@@ -20,10 +23,7 @@ type Credentials struct {
 }
 
 type Response struct {
-	ID       uint   `json:"id"`
-	Name     string `json:"name"`
-	Surname  string `json:"surname"`
-	Username string `json:"username"`
+	UserInfo
 	JwtToken string `json:"jwtToken"`
 }
 
@@ -34,16 +34,20 @@ func errorResponse(err error) gin.H {
 func Login(ctx *gin.Context) {
 
 	var credentials Credentials
-
 	if err := ctx.ShouldBindJSON(&credentials); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
 	db := admin.DB
+	var userInfo UserInfo
+	query := db.Table("users u").Joins("LEFT JOIN writers w ON w.user_id = u.id").
+		Where("username = ? and password = ?", credentials.Username, credentials.Password).
+		Select("u.id as m1_id, u.name as m1_name, u.surname as m1_surname, u.username as  m1_username, u.password as m1_password, u.photo_id as m1_photo_id, w.id").
+		Find(&userInfo)
 
-	if err := db.Where("username = ? and password = ?", credentials.Username, credentials.Password).First(&user).Error; err != nil {
-		ctx.JSON(http.StatusBadRequest, "User not found")
+	if query.Error != nil {
+		ctx.JSON(http.StatusBadRequest, query.Error)
 		return
 	}
 
@@ -60,15 +64,10 @@ func Login(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-
-	fmt.Printf("Logged in: %v\n", user.Name)
-
-	ctx.SetCookie(fmt.Sprintf("token", user.Name), tokenString, 3600, "/", "localhost", false, true)
+	fmt.Printf("Logged in: %v\n", userInfo.ID)
+	ctx.SetCookie(fmt.Sprintf("token", userInfo.Username), tokenString, 3600, "/", "localhost", false, true)
 	ctx.JSON(http.StatusOK, Response{
-		ID:       user.ID,
-		Name:     user.Name,
-		Surname:  user.Surname,
-		Username: user.Username,
+		UserInfo: userInfo,
 		JwtToken: tokenString,
 	})
 

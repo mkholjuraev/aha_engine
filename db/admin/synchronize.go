@@ -11,12 +11,9 @@ import (
 func synchronize(db *gorm.DB) error {
 	m := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		{
-			ID: "changle post table: add read time",
+			ID: "addd profession column to writer table",
 			Migrate: func(tx *gorm.DB) error {
 				if err := tx.AutoMigrate(
-					models.Post{},
-					models.User{},
-					models.Images{},
 					models.Writer{},
 				); err != nil {
 					return err
@@ -25,9 +22,6 @@ func synchronize(db *gorm.DB) error {
 			},
 			Rollback: func(tx *gorm.DB) error {
 				return tx.Migrator().DropTable(
-					models.Post{},
-					models.User{},
-					models.Images{},
 					models.Writer{},
 				)
 			},
