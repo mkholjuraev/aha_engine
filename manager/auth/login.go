@@ -12,7 +12,7 @@ import (
 var jwtKey = []byte("sectet")
 
 type UserInfo struct {
-	WriterId    uint `json:"writer_id" query:"w.id"`
+	WriterId    uint `json:"writer_id" query:"writer_id"`
 	models.User `gorm:"embedded;embeddedPrefix:m1_"`
 }
 
@@ -43,7 +43,7 @@ func Login(ctx *gin.Context) {
 	var userInfo UserInfo
 	query := db.Table("users u").Joins("LEFT JOIN writers w ON w.user_id = u.id").
 		Where("username = ? and password = ?", credentials.Username, credentials.Password).
-		Select("u.id as m1_id, u.name as m1_name, u.surname as m1_surname, u.username as  m1_username, u.password as m1_password, u.photo_id as m1_photo_id, w.id").
+		Select("u.id as m1_id, u.name as m1_name, u.surname as m1_surname, u.username as  m1_username, u.password as m1_password, u.photo_id as m1_photo_id, w.id as writer_id").
 		Find(&userInfo)
 
 	if query.Error != nil {
