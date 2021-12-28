@@ -20,7 +20,7 @@ func PostServer(ctx *gin.Context) {
 	db := admin.DB
 
 	if err := db.Where("id = ?", postId).First(&post).Error; err != nil {
-		ctx.JSON(http.StatusBadRequest, "Image not found")
+		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 

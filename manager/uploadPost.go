@@ -3,7 +3,6 @@ package manager
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mkholjuraev/aha_engine/base/models"
@@ -20,7 +19,7 @@ type PostRequestAttributes struct {
 	Likes       int    `json:"likes" gorm:"default:null"`
 	Shares      int    `json:"shares" gorm:"default:null"`
 	CoverImage  string `json:"cover_image"`
-	ReadTime    string `json:"read_time"`
+	ReadTime    int    `json:"read_time"`
 }
 
 func UploadPost(ctx *gin.Context) {
@@ -29,7 +28,7 @@ func UploadPost(ctx *gin.Context) {
 
 	var requstBody PostRequestAttributes
 	if err := ctx.ShouldBindJSON(&requstBody); err != nil {
-		ctx.JSON(http.StatusBadRequest, "You should provide correct data")
+		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 
@@ -43,7 +42,6 @@ func UploadPost(ctx *gin.Context) {
 }
 
 func mapRequestModel(requestBody PostRequestAttributes) models.Post {
-	readTime, _ := strconv.Atoi(requestBody.ReadTime)
 	var post models.Post
 	post = models.Post{
 		Title:       requestBody.Title,
@@ -51,7 +49,7 @@ func mapRequestModel(requestBody PostRequestAttributes) models.Post {
 		WriterID:    requestBody.WriterID,
 		Content:     requestBody.Content,
 		CoverImage:  requestBody.CoverImage,
-		ReadTime:    readTime,
+		ReadTime:    requestBody.ReadTime,
 	}
 
 	return post
