@@ -49,7 +49,7 @@ func mapUploadWriterInfoRequestModel(requestBody WriterRequestAttributes) models
 	writer = models.Writer{
 		UserID:     requestBody.UserID,
 		Profession: requestBody.Profession,
-		Biograph:   requestBody.Biography,
+		Biography:  requestBody.Biography,
 	}
 
 	return writer

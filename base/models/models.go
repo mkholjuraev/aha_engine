@@ -22,7 +22,7 @@ type User struct {
 
 type Writer struct {
 	BaseModel
-	Biograph      string `json:"biograph"`
+	Biography     string `json:"biography"`
 	Profession    string `json:"profession"`
 	DistinctLikes int    `json:"distinct_likes" gorm:"default:null"`
 	DistinctViews int    `json:"distinct_views" gorm:"default:null"`

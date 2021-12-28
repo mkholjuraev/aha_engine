@@ -21,6 +21,8 @@ func main() {
 	router.GET("/api/image/:image_id", manager.ImageServer)
 	router.GET("/api/posts", manager.PostsServer)
 	router.GET("/api/post/:post_id", manager.PostServer)
+	router.GET("/api/writers", manager.WritersListServer)
+	router.GET("/api/writers/:writer_id", manager.WriterInfoServer)
 
 	maker, err := auth.NewJWTMaker("xZ4PG7VtzqzHUBzDvA9EzzXiZ4nCataJ")
 	authRoutes := router.Group("/").Use(middleware.CORSMiddlewarePermitAfterAuth())

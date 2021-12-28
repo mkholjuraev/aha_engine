@@ -11,7 +11,7 @@ import (
 func synchronize(db *gorm.DB) error {
 	m := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		{
-			ID: "addd profession column to writer table",
+			ID: "fix type: biograph to biography on writer table",
 			Migrate: func(tx *gorm.DB) error {
 				if err := tx.AutoMigrate(
 					models.Writer{},
