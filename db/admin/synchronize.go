@@ -11,10 +11,11 @@ import (
 func synchronize(db *gorm.DB) error {
 	m := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		{
-			ID: "fix type: biograph to biography on writer table",
+			ID: "Fix specializations migration 4",
 			Migrate: func(tx *gorm.DB) error {
 				if err := tx.AutoMigrate(
 					models.Writer{},
+					models.Specialization{},
 				); err != nil {
 					return err
 				}
@@ -23,6 +24,7 @@ func synchronize(db *gorm.DB) error {
 			Rollback: func(tx *gorm.DB) error {
 				return tx.Migrator().DropTable(
 					models.Writer{},
+					models.Specialization{},
 				)
 			},
 		},

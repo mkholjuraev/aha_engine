@@ -22,12 +22,13 @@ type User struct {
 
 type Writer struct {
 	BaseModel
-	Biography     string `json:"biography"`
-	Profession    string `json:"profession"`
-	DistinctLikes int    `json:"distinct_likes" gorm:"default:null"`
-	DistinctViews int    `json:"distinct_views" gorm:"default:null"`
-	UserID        uint   `json:"user_id"`
-	User          User   `gorm:"foreignKey:UserID"`
+	Biography       string           `json:"biography"`
+	Profession      string           `json:"profession"`
+	DistinctLikes   int              `json:"distinct_likes" gorm:"default:null"`
+	DistinctViews   int              `json:"distinct_views" gorm:"default:null"`
+	Specializations []Specialization `gorm:"many2many:writer_specializations;"`
+	UserID          uint             `json:"user_id"`
+	User            User             `gorm:"foreignKey:UserID"`
 }
 
 type Follower struct {
@@ -82,7 +83,7 @@ type Images struct {
 
 type Specialization struct {
 	BaseModel
-	Name      string `json:"specialization_name" gorm:"not null"`
-	WriterIDs []uint `json:"writer_ids"`
-	Writer    Writer `gorm:"foreignKey:WriterIDs"`
+	Name        string   `json:"name" gorm:"not null;unique"`
+	Description string   `json:"description"`
+	Writers     []Writer `gorm:"many2many:writer_specializations;"`
 }

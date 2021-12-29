@@ -36,5 +36,6 @@ func main() {
 	authRoutes.POST("/api/post/upload", manager.UploadPost)
 	authRoutes.DELETE("/api/post/:post_id", manager.DeletePostHandler)
 	authRoutes.POST("/api/writers", manager.UploadWriterInfo)
+	authRoutes.POST("/api/specializations", manager.UploadSpecialization)
 	router.Run(":8085")
 }
