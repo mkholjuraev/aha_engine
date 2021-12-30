@@ -11,7 +11,8 @@ import (
 	"github.com/mkholjuraev/aha_engine/db/admin"
 )
 
-type SpecizalizationRequestAttributes struct {
+type SpecizalizationAttributes struct {
+	ID          uint   `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	WriterIDs   []uint `json:"writer_ids"`
@@ -27,7 +28,7 @@ func UploadSpecialization(ctx *gin.Context) {
 		return
 	}
 
-	var requstBody SpecizalizationRequestAttributes
+	var requstBody SpecizalizationAttributes
 	err = json.Unmarshal(body, &requstBody)
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
@@ -44,7 +45,7 @@ func UploadSpecialization(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "success")
 }
 
-func mapUploadSpecizalizationRequestModel(requestBody SpecizalizationRequestAttributes) models.Specialization {
+func mapUploadSpecizalizationRequestModel(requestBody SpecizalizationAttributes) models.Specialization {
 	fmt.Println(requestBody.WriterIDs)
 	writers := make([]models.Writer, len(requestBody.WriterIDs))
 	for i := 0; i < len(requestBody.WriterIDs); i++ {
@@ -61,4 +62,27 @@ func mapUploadSpecizalizationRequestModel(requestBody SpecizalizationRequestAttr
 	}
 
 	return specialization
+}
+
+type SpecizalizationResponse struct {
+	ID          uint   `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+func SpecializationsServer(ctx *gin.Context) {
+
+	db := admin.DB
+	var response []SpecizalizationResponse
+
+	dbResponse := db.Table("specializations as s").
+		Select("s.id, s.name, s.description").
+		Limit(10).Scan(&response)
+
+	if dbResponse.Error != nil {
+		ctx.JSON(http.StatusBadRequest, "Posts not found")
+		return
+	}
+
+	ctx.JSON(http.StatusOK, &response)
 }
