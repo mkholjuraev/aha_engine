@@ -62,7 +62,14 @@ func PostServer(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, post)
 }
 
+type PostsFilterRequests struct {
+	WriterID string `json:"writer_id"`
+}
+
 func PostsServer(ctx *gin.Context) {
+	filters := PostsFilterRequests{
+		WriterID: ctx.Request.URL.Query().Get("writer_id"),
+	}
 
 	db := admin.DB
 	var response []PostsResponse
@@ -70,6 +77,7 @@ func PostsServer(ctx *gin.Context) {
 	dbResponse := db.Table("posts as p").
 		Joins("join users as u on p.writer_id = u.id").
 		Select("p.id, p.title, p.description, p.cover_image, p.created_at::date, p.writer_id, p.read_time, u.name, u.surname, u.username").
+		Where(filters).
 		Limit(10).Scan(&response)
 
 	if dbResponse.Error != nil {
