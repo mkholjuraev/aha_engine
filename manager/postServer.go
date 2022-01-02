@@ -5,28 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mkholjuraev/aha_engine/base/models"
 	"github.com/mkholjuraev/aha_engine/db/admin"
 )
-
-func PostServer(ctx *gin.Context) {
-	var post models.Post
-
-	postId := ctx.Param("post_id")
-	if postId == "" {
-		ctx.JSON(http.StatusBadRequest, "You need to send correct post id")
-	}
-
-	db := admin.DB
-
-	if err := db.Where("id = ?", postId).First(&post).Error; err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
-		return
-	}
-
-	fmt.Printf("Post served: %v\n", post.ID)
-	ctx.JSON(http.StatusOK, post)
-}
 
 //Use to serve content also: p.content,   Content     string `json:"content" query:"p.content"`
 type PostsResponse struct {
@@ -37,9 +17,49 @@ type PostsResponse struct {
 	CreatedAt   string `json:"created_at" query:"created_at"`
 	Name        string `json:"name" query:"u.name"`
 	Surname     string `json:"surname" query:"u.surname"`
-	Username    string `json:"username" query:"u.username"`
 	CoverImage  string `json:"cover_image" query:"p.cover_image"`
 	ReadTime    int    `json:"read_time" query:"p.read_time"`
+}
+
+//TODO: fix biography column typo
+type SinglePostResponse struct {
+	PostsResponse `gorm:"embedded;embeddedPrefix:m1_"`
+	Content       string `json:"content" query:"p.content"`
+	Name          string `json:"name" query:"u.name"`
+	Surname       string `json:"surname" query:"u.surname"`
+	Biograph      string `json:"biograph" query:"w.biograph"`
+	PhotoID       uint   `json:"photo_id" query:"u.photo_id"`
+	Profession    string `json:"profession" query:"w.profession"`
+	DistinctLikes int    `json:"distinct_likes" query:"w.distinct_likes"`
+	DistinctViews int    `json:"distinct_views" query:"w.distinct_views" `
+	// Specializations []string `json:"specializations" query:"specializations" `
+}
+
+func PostServer(ctx *gin.Context) {
+	var post SinglePostResponse
+
+	postID := ctx.Param("post_id")
+	if postID == "" {
+		ctx.JSON(http.StatusBadRequest, "You need to send correct post id")
+	}
+
+	db := admin.DB
+
+	//TODO: fix biography column typo
+	err := db.Table("posts as p").
+		Joins("JOIN writers as w ON w.id = p.writer_id").
+		Joins("JOIN users as u ON u.id = w.user_id").
+		Where("p.id = (?)", postID).
+		Select("p.id as m1_id, p.title as m1_title, p.description as m1_description, p.cover_image as m1_cover_image, p.content, p.created_at::date as m1_created_at, p.writer_id as m1_writer_id, p.read_time as m1_read_time, u.name, u.surname, w.id as writer_id, u.photo_id, w.biograph, w.profession, w.distinct_likes,w.distinct_views").
+		Scan(&post).Error
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	fmt.Printf("Post served: %v\n", post.Id)
+	ctx.JSON(http.StatusOK, post)
 }
 
 func PostsServer(ctx *gin.Context) {
