@@ -15,7 +15,7 @@ func main() {
 	admin.NewDatabaseConncetion()
 
 	router := gin.Default()
-	router.Use(middleware.CORSMiddlewarePermitLogin())
+	router.Use(middleware.CORSMiddleware())
 	router.POST("/api/login", auth.Login)
 	router.POST("/api/register", manager.Register)
 	router.GET("/api/image/:image_id", manager.ImageServer)
@@ -26,10 +26,11 @@ func main() {
 	router.GET("/api/specializations", manager.SpecializationsServer)
 
 	maker, err := auth.NewJWTMaker("xZ4PG7VtzqzHUBzDvA9EzzXiZ4nCataJ")
-	authRoutes := router.Group("/").Use(middleware.CORSMiddlewarePermitAfterAuth())
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	authRoutes := router.Group("/")
 
 	authRoutes.Use(middleware.AuthMiddleware(maker))
 	authRoutes.GET("/api/profile", manager.Profile)
