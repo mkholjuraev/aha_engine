@@ -3,13 +3,13 @@ package manager
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mkholjuraev/aha_engine/db/admin"
 )
 
-//Use to serve content also: p.content,   Content     string `json:"content" query:"p.content"`
-type PostsResponse struct {
+type Post struct {
 	Id          uint   `json:"id" query:"p.id"`
 	Title       string `json:"title" query:"p.title"`
 	Description string `json:"description" query:"p.description"`
@@ -23,7 +23,7 @@ type PostsResponse struct {
 
 //TODO: fix biography column typo
 type SinglePostResponse struct {
-	PostsResponse `gorm:"embedded;embeddedPrefix:m1_"`
+	Post          `gorm:"embedded;embeddedPrefix:m1_"`
 	Content       string `json:"content" query:"p.content"`
 	Name          string `json:"name" query:"u.name"`
 	Surname       string `json:"surname" query:"u.surname"`
@@ -33,6 +33,19 @@ type SinglePostResponse struct {
 	DistinctLikes int    `json:"distinct_likes" query:"w.distinct_likes"`
 	DistinctViews int    `json:"distinct_views" query:"w.distinct_views" `
 	// Specializations []string `json:"specializations" query:"specializations" `
+}
+
+type PostsFilterRequests struct {
+	WriterID string `json:"writer_id"`
+}
+
+type Metadata struct {
+	TotalRows int64 `json:"total_rows"`
+}
+
+type PostsResponse struct {
+	Posts []Post
+	Metadata
 }
 
 func PostServer(ctx *gin.Context) {
@@ -62,28 +75,44 @@ func PostServer(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, post)
 }
 
-type PostsFilterRequests struct {
-	WriterID string `json:"writer_id"`
-}
-
 func PostsServer(ctx *gin.Context) {
 	filters := PostsFilterRequests{
 		WriterID: ctx.Request.URL.Query().Get("writer_id"),
 	}
 
-	db := admin.DB
-	var response []PostsResponse
+	offset, err := strconv.Atoi(ctx.Request.URL.Query().Get("offset"))
+	if err != nil {
+		fmt.Println("error converting offset string to int: " + err.Error())
+		return
+	}
 
-	dbResponse := db.Table("posts as p").
+	limit, err := strconv.Atoi(ctx.Request.URL.Query().Get("limit"))
+	if err != nil {
+		fmt.Println("error converting limit string to int: " + err.Error())
+		return
+	}
+
+	db := admin.DB
+	var posts []Post
+	var count int64
+	dbResponse := db.Debug().Table("posts as p").
 		Joins("join users as u on p.writer_id = u.id").
 		Select("p.id, p.title, p.description, p.cover_image, p.created_at::date, p.writer_id, p.read_time, u.name, u.surname, u.username").
 		Where(filters).
-		Limit(10).Scan(&response)
+		Count(&count).
+		Offset(offset).
+		Limit(limit).Scan(&posts)
 
 	if dbResponse.Error != nil {
 		ctx.JSON(http.StatusBadRequest, "Posts not found")
 		return
 	}
 
+	response := PostsResponse{
+		Posts: posts,
+		Metadata: Metadata{
+			TotalRows: count,
+		},
+	}
 	ctx.JSON(http.StatusOK, &response)
 }
