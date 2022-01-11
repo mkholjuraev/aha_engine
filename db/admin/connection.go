@@ -5,24 +5,16 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/mkholjuraev/aha_engine/util"
+	"github.com/mkholjuraev/aha_engine/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-// type DatabaseConnection interface {
-// 	Get() *gorm.DB
-// }
-
-// type databaseConnetion struct {
-// 	DB *gorm.DB
-// }
-
 var DB *gorm.DB
 
 func NewDatabaseConncetion() *gorm.DB {
-	config, err := util.LoadDbConfig("config")
+	config, err := utils.LoadDbConfig("config")
 	if err != nil {
 		log.Fatal("cannot load config: ", err)
 	}
@@ -54,7 +46,3 @@ func NewDatabaseConncetion() *gorm.DB {
 	DB = db
 	return DB
 }
-
-// func (d *databaseConnetion) Get() *gorm.DB {
-// 	return d.DB
-// }

@@ -80,30 +80,36 @@ func PostsServer(ctx *gin.Context) {
 		WriterID: ctx.Request.URL.Query().Get("writer_id"),
 	}
 
-	offset, err := strconv.Atoi(ctx.Request.URL.Query().Get("offset"))
-	if err != nil {
-		fmt.Println("error converting offset string to int: " + err.Error())
-		return
-	}
-
-	limit, err := strconv.Atoi(ctx.Request.URL.Query().Get("limit"))
-	if err != nil {
-		fmt.Println("error converting limit string to int: " + err.Error())
-		return
-	}
-
 	db := admin.DB
 	var posts []Post
 	var count int64
-	dbResponse := db.Debug().Table("posts as p").
-		Joins("join users as u on p.writer_id = u.id").
-		Select("p.id, p.title, p.description, p.cover_image, p.created_at::date, p.writer_id, p.read_time, u.name, u.surname, u.username").
-		Where(filters).
-		Count(&count).
-		Offset(offset).
-		Limit(limit).Scan(&posts)
+	allRows := db.Debug().Table("posts as p").
+		Joins("join writers as w on p.writer_id = w.id").
+		Joins("join users as u on u.id = w.user_id").
+		Select("p.id, p.title, p.description, p.cover_image, p.created_at::date, p.writer_id, p.read_time, u.name, u.surname, u.username")
 
-	if dbResponse.Error != nil {
+	if filters.WriterID != "" {
+		writerID, _ := strconv.Atoi(filters.WriterID)
+		allRows.Where("p.writer_id = ?", writerID)
+
+	}
+
+	offsetString := ctx.Request.URL.Query().Get("offset")
+	if offsetString != "" {
+		offset, _ := strconv.Atoi(offsetString)
+		allRows.Count(&count).Offset(offset)
+		fmt.Println(offsetString + "sddfdsf")
+	}
+
+	limitString := ctx.Request.URL.Query().Get("limit")
+	if limitString != "" {
+		limit, _ := strconv.Atoi(limitString)
+		allRows.Limit(limit)
+	}
+
+	finalQuery := allRows.Scan(&posts)
+
+	if finalQuery.Error != nil {
 		ctx.JSON(http.StatusBadRequest, "Posts not found")
 		return
 	}
