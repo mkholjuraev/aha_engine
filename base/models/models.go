@@ -87,3 +87,17 @@ type Specialization struct {
 	Description string   `json:"description"`
 	Writers     []Writer `gorm:"many2many:writer_specializations;"`
 }
+
+type Tags struct {
+	ID   uint   `json:"id" gorm:"primary_key" query:"t.id"`
+	Name string `json:"name" gorm:"not null;unique"`
+}
+
+type PostTags struct {
+	TagID              uint           `gorm:"primary_key"`
+	PostID             uint           `gorm:"primary_key"`
+	SpecializationID   uint           `gorm:"primary_key"`
+	TagFKEY            Tags           `gorm:"foreignKey:TagID"`
+	PostFKEY           Post           `gorm:"foreignKey:PostID"`
+	SpecializationFKEY Specialization `gorm:"foreignKey:SpecializationID"`
+}

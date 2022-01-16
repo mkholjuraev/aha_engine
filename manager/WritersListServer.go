@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mkholjuraev/aha_engine/db/admin"
+	"github.com/mkholjuraev/publico_engine/db/admin"
 )
 
 type WritersListResponse struct {
@@ -16,6 +16,7 @@ type WritersListResponse struct {
 }
 
 type WriterResponse struct {
+	WritersListResponse
 	Biography     string `json:"biography" query:"w.biography"`
 	Profession    string `json:"profession" query:"w.profession"`
 	DistinctLikes int    `json:"distinct_likes" query:"w.distinct_likes"`
@@ -43,7 +44,7 @@ func WritersListServer(ctx *gin.Context) {
 func WriterInfoServer(ctx *gin.Context) {
 
 	db := admin.DB
-	var response []WritersListResponse
+	var response []WriterResponse
 	writerID := ctx.Param("writer_id")
 
 	dbResponse := db.Table("writers as w").

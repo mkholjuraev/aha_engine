@@ -4,17 +4,17 @@ import (
 	"fmt"
 
 	"github.com/go-gormigrate/gormigrate/v2"
-	"github.com/mkholjuraev/aha_engine/base/models"
+	"github.com/mkholjuraev/publico_engine/base/models"
 	"gorm.io/gorm"
 )
 
 func synchronize(db *gorm.DB) error {
 	m := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		{
-			ID: "Fix posts foreign key migration",
+			ID: "Specializations added PostTags tables created",
 			Migrate: func(tx *gorm.DB) error {
 				if err := tx.AutoMigrate(
-					models.Post{},
+					models.PostTags{},
 				); err != nil {
 					return err
 				}
@@ -22,7 +22,7 @@ func synchronize(db *gorm.DB) error {
 			},
 			Rollback: func(tx *gorm.DB) error {
 				return tx.Migrator().DropTable(
-					models.Writer{},
+					models.PostTags{},
 				)
 			},
 		},
