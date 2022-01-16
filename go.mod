@@ -1,4 +1,4 @@
-module github.com/mkholjuraev/aha_engine
+module github.com/mkholjuraev/publico_engine
 
 go 1.16
 

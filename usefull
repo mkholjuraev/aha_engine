@@ -2,7 +2,7 @@
 2. migrate create -ext sql -dir db/migration -seq init_schema
 3. mkdir -p db/migration  
 4. docker exec -it postgres12 /bin/sh
-5. createdb -h  localhost -p 5432 --username=postgres --owner=postgres aha_engine
+5. createdb -h  localhost -p 5432 --username=postgres --owner=postgres publico_engine
 6. psql aha-terminal    = access database
 7. exit = exit from database, psql
 8. we can create a makefile and use it to create instruction library for sharing the project
@@ -12,7 +12,7 @@
 	docker run --name postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=admin -d postgres:alpine
 12. curl -d '{"username":"user1","password":"password1"}' -H "Content-Type: application/json" -X POST http://localhost:8082/login
 13. interact directly with postgres12 docker image shell: docker exec -it postgres12 /bin/sh
-14. interact without the shell ^ :  docker exec -t postgres12 psql -U root aha_engine
+14. interact without the shell ^ :  docker exec -t postgres12 psql -U root publico_engine
 
 
 

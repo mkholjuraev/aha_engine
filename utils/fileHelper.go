@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/mkholjuraev/aha_engine/base/models"
+	"github.com/mkholjuraev/publico_engine/base/models"
 )
 
 func SaveFile(ctx *gin.Context, file *multipart.FileHeader, folderName string) (newFile models.Images, err error) {

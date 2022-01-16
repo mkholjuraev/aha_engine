@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/mkholjuraev/aha_engine/utils"
+	"github.com/mkholjuraev/publico_engine/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

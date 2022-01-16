@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mkholjuraev/aha_engine/manager/auth"
+	"github.com/mkholjuraev/publico_engine/manager/auth"
 )
 
 const (

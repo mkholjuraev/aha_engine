@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mkholjuraev/aha_engine/db/admin"
+	"github.com/mkholjuraev/publico_engine/db/admin"
 )
 
 type Post struct {

@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mkholjuraev/aha_engine/db/admin"
-	"github.com/mkholjuraev/aha_engine/manager"
-	"github.com/mkholjuraev/aha_engine/manager/auth"
-	"github.com/mkholjuraev/aha_engine/manager/middleware"
+	"github.com/mkholjuraev/publico_engine/db/admin"
+	"github.com/mkholjuraev/publico_engine/manager"
+	"github.com/mkholjuraev/publico_engine/manager/auth"
+	"github.com/mkholjuraev/publico_engine/manager/middleware"
 )
 
 func main() {

@@ -7,8 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/mkholjuraev/aha_engine/base/models"
-	"github.com/mkholjuraev/aha_engine/db/admin"
+	"github.com/mkholjuraev/publico_engine/base/models"
+	"github.com/mkholjuraev/publico_engine/db/admin"
 )
 
 func UploadImage(ctx *gin.Context) {

@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mkholjuraev/aha_engine/base/models"
-	"github.com/mkholjuraev/aha_engine/db/admin"
+	"github.com/mkholjuraev/publico_engine/base/models"
+	"github.com/mkholjuraev/publico_engine/db/admin"
 )
 
 var jwtKey = []byte("sectet")
