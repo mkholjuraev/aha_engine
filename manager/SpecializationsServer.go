@@ -2,7 +2,6 @@ package manager
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -46,7 +45,7 @@ func UploadSpecialization(ctx *gin.Context) {
 }
 
 func mapUploadSpecizalizationRequestModel(requestBody SpecizalizationAttributes) models.Specialization {
-	fmt.Println(requestBody.WriterIDs)
+
 	writers := make([]models.Writer, len(requestBody.WriterIDs))
 	for i := 0; i < len(requestBody.WriterIDs); i++ {
 		writerID := (requestBody.WriterIDs)[i]
