@@ -93,10 +93,10 @@ type Tags struct {
 	Name string `json:"name" gorm:"not null;unique"`
 }
 
-type PostMetada struct {
+type PostMetadata struct {
 	TagIDJSON          []byte         `json:"tag_ids" gorm:"primary_key"`
 	PostID             uint           `json:"post_id" gorm:"primary_key"`
 	SpecializationID   uint           `json:"specialization_id" gorm:"primary_key"`
-	PostFKEY           Post           `gorm:"foreignKey:PostID"`
-	SpecializationFKEY Specialization `gorm:"foreignKey:SpecializationID"`
+	PostFKEY           Post           `gorm:"foreignKey:PostID;constraint:OnDelete: CASCADE;"`
+	SpecializationFKEY Specialization `gorm:"foreignKey:SpecializationID;constraint:OnDelete:SET NULL;"`
 }

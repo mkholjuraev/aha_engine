@@ -56,7 +56,7 @@ func UploadPost(ctx *gin.Context) {
 	}
 
 	metadata := mapPostMetadata(tags, requstBody, post)
-	metadataQuery := db.Debug().Model(models.PostMetada{}).Create(&metadata)
+	metadataQuery := db.Debug().Model(models.PostMetadata{}).Create(&metadata)
 
 	if metadataQuery.Error != nil {
 		ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("Error in database job: %s", metadataQuery.Error.Error()))
@@ -95,14 +95,14 @@ func mapTagsModel(tags []string) ([]models.Tags, bool) {
 	return tagModels, false
 }
 
-func mapPostMetadata(tags []models.Tags, requestBody PostRequestAttributes, post models.Post) models.PostMetada {
+func mapPostMetadata(tags []models.Tags, requestBody PostRequestAttributes, post models.Post) models.PostMetadata {
 	tagIDs := make([]uint, len(tags))
 	for i := 0; i < len(tags); i++ {
 		tagIDs[i] = tags[i].ID
 	}
 
 	tagIDJson, _ := json.Marshal(tagIDs)
-	metadata := models.PostMetada{
+	metadata := models.PostMetadata{
 		TagIDJSON:        tagIDJson,
 		PostID:           post.ID,
 		SpecializationID: uint(requestBody.Theme),

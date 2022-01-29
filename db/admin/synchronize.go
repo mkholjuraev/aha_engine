@@ -11,10 +11,10 @@ import (
 func synchronize(db *gorm.DB) error {
 	m := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		{
-			ID: "Specializations added PostTags tables renamed to PostMetada",
+			ID: "Postmetadata handle cascade deleting 2",
 			Migrate: func(tx *gorm.DB) error {
 				if err := tx.AutoMigrate(
-					models.PostMetada{},
+					models.PostMetadata{},
 				); err != nil {
 					return err
 				}
@@ -22,7 +22,7 @@ func synchronize(db *gorm.DB) error {
 			},
 			Rollback: func(tx *gorm.DB) error {
 				return tx.Migrator().DropTable(
-					models.PostMetada{},
+					models.PostMetadata{},
 				)
 			},
 		},
