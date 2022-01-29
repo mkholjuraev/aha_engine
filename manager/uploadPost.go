@@ -95,13 +95,19 @@ func mapTagsModel(tags []string) ([]models.Tags, bool) {
 	return tagModels, false
 }
 
+type TagIDs struct {
+	IDS []uint `json:"ids"`
+}
+
 func mapPostMetadata(tags []models.Tags, requestBody PostRequestAttributes, post models.Post) models.PostMetadata {
-	tagIDs := make([]uint, len(tags))
+	IDs := make([]uint, len(tags))
 	for i := 0; i < len(tags); i++ {
-		tagIDs[i] = tags[i].ID
+		IDs[i] = tags[i].ID
 	}
 
+	tagIDs := TagIDs{IDS: IDs}
 	tagIDJson, _ := json.Marshal(tagIDs)
+
 	metadata := models.PostMetadata{
 		TagIDJSON:        tagIDJson,
 		PostID:           post.ID,

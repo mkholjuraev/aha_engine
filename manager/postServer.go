@@ -1,11 +1,13 @@
 package manager
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mkholjuraev/publico_engine/base/models"
 	"github.com/mkholjuraev/publico_engine/db/admin"
 )
 
@@ -22,17 +24,18 @@ type Post struct {
 }
 
 //TODO: fix biography column typo
-type SinglePostResponse struct {
+type SinglePostQuery struct {
 	Post          `gorm:"embedded;embeddedPrefix:m1_"`
 	Content       string `json:"content" query:"p.content"`
-	Name          string `json:"name" query:"u.name"`
-	Surname       string `json:"surname" query:"u.surname"`
-	Biograph      string `json:"biograph" query:"w.biograph"`
-	PhotoID       uint   `json:"photo_id" query:"u.photo_id"`
-	Profession    string `json:"profession" query:"w.profession"`
 	DistinctLikes int    `json:"distinct_likes" query:"w.distinct_likes"`
 	DistinctViews int    `json:"distinct_views" query:"w.distinct_views" `
-	// Specializations []string `json:"specializations" query:"specializations" `
+	Theme         string `json:"theme" query:"s.name" `
+	Tags          string `json:"tags" query:"tags" `
+}
+
+type SinglePostResponse struct {
+	Post SinglePostQuery `json:"post"`
+	Tags []string        `json:"tags"`
 }
 
 type PostsFilterRequests struct {
@@ -49,7 +52,7 @@ type PostsResponse struct {
 }
 
 func PostServer(ctx *gin.Context) {
-	var post SinglePostResponse
+	var post SinglePostQuery
 
 	postID := ctx.Param("post_id")
 	if postID == "" {
@@ -62,17 +65,39 @@ func PostServer(ctx *gin.Context) {
 	err := db.Table("posts as p").
 		Joins("JOIN writers as w ON w.id = p.writer_id").
 		Joins("JOIN users as u ON u.id = w.user_id").
+		Joins("LEFT JOIN post_metadata as m ON m.post_id = p.id").
+		Joins("LEFT JOIN specializations as s ON s.id = m.specialization_id").
 		Where("p.id = (?)", postID).
-		Select("p.id as m1_id, p.title as m1_title, p.description as m1_description, p.cover_image as m1_cover_image, p.content, p.created_at::date as m1_created_at, p.writer_id as m1_writer_id, p.read_time as m1_read_time, u.name, u.surname, w.id as writer_id, u.photo_id, w.biograph, w.profession, w.distinct_likes,w.distinct_views").
-		Scan(&post).Error
+		Select(`p.id as m1_id, p.title as m1_title, p.description as m1_description, p.cover_image as m1_cover_image, p.content, 
+			p.created_at::date as m1_created_at, p.writer_id as m1_writer_id, p.read_time as m1_read_time, w.id as writer_id,
+			w.distinct_likes,w.distinct_views, s.name as theme, m.tag_id_json as tags`).Scan(&post).Error
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	fmt.Printf("Post served: %v\n", post.Id)
-	ctx.JSON(http.StatusOK, post)
+	var tagIDs TagIDs
+
+	var tagNames []string
+	if post.Tags != "" {
+		if err := json.Unmarshal([]byte(post.Tags), &tagIDs); err != nil {
+			panic(err)
+		}
+
+		err = db.Model(models.Tags{}).Select("name").Where("id in (?)", tagIDs.IDS).Scan(&tagNames).Error
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
+
+	response := SinglePostResponse{
+		Post: post,
+		Tags: tagNames,
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }
 
 func PostsServer(ctx *gin.Context) {
