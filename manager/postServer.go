@@ -2,13 +2,14 @@ package manager
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mkholjuraev/publico_engine/base/models"
 	"github.com/mkholjuraev/publico_engine/db/admin"
+	"github.com/mkholjuraev/publico_engine/utils"
 )
 
 type Post struct {
@@ -39,7 +40,8 @@ type SinglePostResponse struct {
 }
 
 type PostsFilterRequests struct {
-	WriterID string `json:"writer_id"`
+	WriterID         string `json:"writer_id" query:"p.writer_id"`
+	SpecializationID string `json:"specialization_id" query:"m.specialization_id"`
 }
 
 type Metadata struct {
@@ -102,28 +104,26 @@ func PostServer(ctx *gin.Context) {
 
 func PostsServer(ctx *gin.Context) {
 	filters := PostsFilterRequests{
-		WriterID: ctx.Request.URL.Query().Get("writer_id"),
+		WriterID:         ctx.Request.URL.Query().Get("writer_id"),
+		SpecializationID: ctx.Request.URL.Query().Get("specialization_id"),
 	}
 
 	db := admin.DB
 	var posts []Post
 	var count int64
 	allRows := db.Debug().Table("posts as p").
-		Joins("join writers as w on p.writer_id = w.id").
-		Joins("join users as u on u.id = w.user_id").
+		Joins("JOIN writers AS w ON p.writer_id = w.id").
+		Joins("JOIN users AS u ON u.id = w.user_id").
+		Joins("LEFT JOIN post_metadata AS m ON m.post_id = p.id").
 		Select("p.id, p.title, p.description, p.cover_image, p.created_at::date, p.writer_id, p.read_time, u.name, u.surname, u.username")
 
-	if filters.WriterID != "" {
-		writerID, _ := strconv.Atoi(filters.WriterID)
-		allRows.Where("p.writer_id = ?", writerID)
-
-	}
+	whereCondition := utils.QueryConditions(filters)
+	allRows.Where(strings.Join(whereCondition, " AND "))
 
 	offsetString := ctx.Request.URL.Query().Get("offset")
 	if offsetString != "" {
 		offset, _ := strconv.Atoi(offsetString)
 		allRows.Count(&count).Offset(offset)
-		fmt.Println(offsetString + "sddfdsf")
 	}
 
 	limitString := ctx.Request.URL.Query().Get("limit")
@@ -135,7 +135,7 @@ func PostsServer(ctx *gin.Context) {
 	finalQuery := allRows.Scan(&posts)
 
 	if finalQuery.Error != nil {
-		ctx.JSON(http.StatusBadRequest, "Posts not found")
+		ctx.JSON(http.StatusBadRequest, finalQuery.Error.Error())
 		return
 	}
 
