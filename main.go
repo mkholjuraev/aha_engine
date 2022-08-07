@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mkholjuraev/publico_engine/db/admin"
@@ -11,7 +12,11 @@ import (
 )
 
 func main() {
+	port := os.Getenv("PORT")
 
+	if port == "" {
+		port = "3000"
+	}
 	admin.NewDatabaseConncetion()
 
 	router := gin.Default()
@@ -40,5 +45,5 @@ func main() {
 	authRoutes.POST("/api/post/:post_id", manager.UpdatePost)
 	authRoutes.POST("/api/writers", manager.UploadWriterInfo)
 	authRoutes.POST("/api/specializations", manager.UploadSpecialization)
-	router.Run(":8085")
+	router.Run(":" + port)
 }
