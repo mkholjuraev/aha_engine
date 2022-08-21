@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"os"
 
 	"github.com/mkholjuraev/publico_engine/utils"
 	"gorm.io/driver/postgres"
@@ -15,8 +16,19 @@ var DB *gorm.DB
 
 func NewDatabaseConncetion() *gorm.DB {
 	config, err := utils.LoadDbConfig("config")
+	var dsn string
+
 	if err != nil {
-		log.Fatal("cannot load config: ", err)
+		log.Println("cannot load config: ", err)
+		dsn = os.Getenv("DATABASE_URL")
+	} else {
+		dsnURL := url.URL{
+			User:   url.UserPassword(config.DBUsername, config.DBPassword),
+			Scheme: config.DBScheme,
+			Host:   fmt.Sprintf("%s:%d", config.DBHost, config.DBPort),
+			Path:   config.DBDatabase,
+		}
+		dsn = dsnURL.String()
 	}
 
 	var enableLogging logger.Interface
@@ -24,14 +36,7 @@ func NewDatabaseConncetion() *gorm.DB {
 		enableLogging = logger.Default
 	}
 
-	dsn := url.URL{
-		User:   url.UserPassword(config.DBUsername, config.DBPassword),
-		Scheme: config.DBScheme,
-		Host:   fmt.Sprintf("%s:%d", config.DBHost, config.DBPort),
-		Path:   config.DBDatabase,
-	}
-
-	db, err := gorm.Open(postgres.Open(dsn.String()), &gorm.Config{
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: enableLogging,
 	})
 
