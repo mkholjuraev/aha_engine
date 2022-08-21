@@ -42,12 +42,17 @@ func Login(ctx *gin.Context) {
 	db := admin.DB
 	var userInfo UserInfo
 	query := db.Table("users u").Joins("LEFT JOIN writers w ON w.user_id = u.id").
-		Where("username = ? and password = ?", credentials.Username, credentials.Password).
+		Where("u.username = ? and u.password = ?", credentials.Username, credentials.Password).
 		Select("u.id as m1_id, u.name as m1_name, u.surname as m1_surname, u.username as  m1_username, u.password as m1_password, u.photo_id as m1_photo_id, w.id as writer_id").
 		Find(&userInfo)
 
 	if query.Error != nil {
 		ctx.JSON(http.StatusBadRequest, query.Error)
+		return
+	}
+
+	if query.RowsAffected == 0 {
+		ctx.JSON(http.StatusBadRequest, "Username or password is incorrect ")
 		return
 	}
 
@@ -64,6 +69,7 @@ func Login(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
 	fmt.Printf("Logged in: %v\n", userInfo.ID)
 	ctx.SetCookie(fmt.Sprintf("token", userInfo.Username), tokenString, 3600, "/", "localhost", false, true)
 	ctx.JSON(http.StatusOK, Response{
