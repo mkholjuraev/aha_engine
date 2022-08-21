@@ -3,6 +3,7 @@ package admin
 import (
 	"fmt"
 	"log"
+	"net/url"
 
 	"github.com/mkholjuraev/publico_engine/utils"
 	"gorm.io/driver/postgres"
@@ -23,15 +24,14 @@ func NewDatabaseConncetion() *gorm.DB {
 		enableLogging = logger.Default
 	}
 
-	// dsn := url.URL{
-	// 	User:     url.UserPassword(config.DBUsername, config.DBPassword),
-	// 	Scheme:   config.DBScheme,
-	// 	Host:     fmt.Sprintf("%s:%d", config.DBHost, config.DBPort),
-	// 	Path:     config.DBDatabase,
-	// 	RawQuery: (&url.Values{"sslmode": []string{"disable"}}).Encode(),
-	// }
+	dsn := url.URL{
+		User:   url.UserPassword(config.DBUsername, config.DBPassword),
+		Scheme: config.DBScheme,
+		Host:   fmt.Sprintf("%s:%d", config.DBHost, config.DBPort),
+		Path:   config.DBDatabase,
+	}
 
-	db, err := gorm.Open(postgres.Open("postgres://hpyzicqwgsanug:ee7101397712b5deb369e233bcfe8f75ff078549eb1e2b88a1b0635b524a5799@ec2-3-223-213-207.compute-1.amazonaws.com:5432/dh5j5virfqd8t"), &gorm.Config{
+	db, err := gorm.Open(postgres.Open(dsn.String()), &gorm.Config{
 		Logger: enableLogging,
 	})
 
