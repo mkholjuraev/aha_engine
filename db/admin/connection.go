@@ -15,13 +15,18 @@ import (
 var DB *gorm.DB
 
 func NewDatabaseConncetion() *gorm.DB {
-	config, err := utils.LoadDbConfig("config")
-	var dsn string
+	dsn := os.Getenv("DATABASE_URL")
 
-	if err != nil {
-		log.Println("cannot load config: ", err)
-		dsn = os.Getenv("DATABASE_URL")
-	} else {
+	var enableLogging logger.Interface
+
+	if len(dsn) == 0 {
+		log.Println("can not read config from the server, reading local config")
+
+		config, err := utils.LoadDbConfig("config")
+		if err != nil {
+			log.Println("Database configuration could not be read")
+		}
+
 		dsnURL := url.URL{
 			User:   url.UserPassword(config.DBUsername, config.DBPassword),
 			Scheme: config.DBScheme,
@@ -29,11 +34,10 @@ func NewDatabaseConncetion() *gorm.DB {
 			Path:   config.DBDatabase,
 		}
 		dsn = dsnURL.String()
-	}
 
-	var enableLogging logger.Interface
-	if config.DB_IS_LOGGING_ENALBED {
-		enableLogging = logger.Default
+		if config.DB_IS_LOGGING_ENALBED {
+			enableLogging = logger.Default
+		}
 	}
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
@@ -44,9 +48,7 @@ func NewDatabaseConncetion() *gorm.DB {
 		panic(fmt.Sprintf("database connection failed: %s", err))
 	}
 
-	if config.DBSync {
-		synchronize(db)
-	}
+	synchronize(db)
 	DB = db
 	return DB
 }
