@@ -39,11 +39,18 @@ func Register(ctx *gin.Context) {
 	var user User
 	ctx.Request.ParseMultipartForm(0)
 
+	hashedPassword, err := utils.HashPassord(ctx.Request.FormValue("password"))
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, fmt.Sprintf("%s", err))
+		return
+	}
+
 	var newUser = models.User{
 		Name:        ctx.Request.FormValue("name"),
 		Surname:     ctx.Request.FormValue("surname"),
 		Username:    ctx.Request.FormValue("username"),
-		Password:    ctx.Request.FormValue("password"),
+		Password:    hashedPassword,
 		Telephone:   ctx.Request.FormValue("telephone"),
 		SocialLinks: ctx.Request.FormValue("social_links"),
 		PhotoID:     profileImage.Id,
