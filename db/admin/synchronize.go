@@ -11,7 +11,7 @@ import (
 func synchronize(db *gorm.DB) error {
 	m := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		{
-			ID: "Migrate database 1",
+			ID: "Reinitialize database",
 			Migrate: func(tx *gorm.DB) error {
 				if err := tx.AutoMigrate(
 					models.Chat{},
